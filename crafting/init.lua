@@ -20,7 +20,7 @@ function crafting.creative_mode(raw)
 	if type(player) ~= "string" then
 		player = player:get_player_name()
 	end
-	return (minetest.setting_getbool("creative_mode") or crafting.creative_mode_list[player] == true)
+	return crafting.creative_mode_list[player] == true
 end
 dofile(minetest.get_modpath("crafting").."/formspecs.lua")
 
@@ -198,6 +198,9 @@ end)
 
 minetest.register_on_joinplayer(function(player)
 	minetest.after(0.5,function()
+		if minetest.setting_getbool("creative_mode") then
+			crafting.creative_mode_list[player:get_player_name()] = true
+		end
 		crafting.on_joinplayer(player)
 	end)
 end)
