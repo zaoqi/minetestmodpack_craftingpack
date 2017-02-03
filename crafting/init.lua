@@ -12,6 +12,16 @@
 
 --You should have received a copy of the GNU Affero General Public License
 --along with this program.  If not, see <http://www.gnu.org/licenses/>.
+crafting = {}
+crafting.creative_inventory_size = 0
+crafting.creative_mode_list = {}
+function crafting.creative_mode(raw)
+	local player = raw
+	if type(player) ~= "string" then
+		player = player:get_player_name()
+	end
+	return (minetest.setting_getbool("creative_mode") or crafting.creative_mode_list[player] == true)
+end
 dofile(minetest.get_modpath("crafting").."/formspecs.lua")
 
 local show_armor = false
@@ -69,7 +79,7 @@ local function update_armor(player)
 end
 
 local function set_inventory(player)
-	if minetest.setting_getbool("creative_mode") then
+	if crafting.creative_mode(player) then
 		minetest.after(0.5,function()
 			crafting.set_creative_formspec(player, 0, 1)
 			return
@@ -130,6 +140,29 @@ local function set_inventory(player)
 	
 	player:set_inventory_formspec(form)
 end
+function crafting.on_joinplayer(player)
+	if crafting.creative_mode(player) then
+		dofile(minetest.get_modpath("crafting").."/creative.lua")
+	end
+	--init inventory
+	set_inventory(player)
+	--set hotbar size
+	if player.hud_set_hotbar_itemcount then
+		player.hud_set_hotbar_itemcount(player, 9)
+	end
+	--add hotbar images
+	player:hud_set_hotbar_image("crafting_hotbar.png")
+	player:hud_set_hotbar_selected_image("crafting_hotbar_selected.png")
+
+	if show_armor then
+		local armor_orginal = armor.set_player_armor
+		armor.set_player_armor = function(self, player)
+			armor_orginal(self, player)
+			update_armor(player)
+			set_inventory(player)
+		end
+	end
+end
 
 local function set_workbench(player)
 	player:get_inventory():set_width("craft", 3)
@@ -165,27 +198,7 @@ end)
 
 minetest.register_on_joinplayer(function(player)
 	minetest.after(0.5,function()
-		if minetest.setting_getbool("creative_mode") then
-			dofile(minetest.get_modpath("crafting").."/creative.lua")
-	  	end
-		--init inventory
-		set_inventory(player)
-		--set hotbar size
-		if player.hud_set_hotbar_itemcount then
-			player.hud_set_hotbar_itemcount(player, 9)
-		end
-		--add hotbar images
-		player:hud_set_hotbar_image("crafting_hotbar.png")
- 		player:hud_set_hotbar_selected_image("crafting_hotbar_selected.png")
-
-		if show_armor then
-			local armor_orginal = armor.set_player_armor
-			armor.set_player_armor = function(self, player)
-				armor_orginal(self, player)
-				update_armor(player)
-				set_inventory(player)
-			end
-		end
+		crafting.on_joinplayer(player)
 	end)
 end)
 
@@ -207,4 +220,18 @@ minetest.register_craft({
 		{"group:wood", "group:wood"},
 		{"group:wood", "group:wood"}
 	}
+})
+minetest.register_privilege("gamemode", {description = "Can change gamemode", give_to_singleplayer = false})
+minetest.register_chatcommand("gamemode", {
+	description = "Change gamemode",
+	params = "<gamemode>",
+	privs = {gamemode = true},
+	func = function(name, param)
+		if param == "0" then
+			crafting.creative_mode_list[name] = false
+		elseif param == "1" then
+			crafting.creative_mode_list[name] = true
+		end
+		crafting.on_joinplayer(minetest.get_player_by_name(name))
+	end
 })

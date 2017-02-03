@@ -12,13 +12,10 @@
 
 --You should have received a copy of the GNU Affero General Public License
 --along with this program.  If not, see <http://www.gnu.org/licenses/>.
-crafting = {}
-crafting.creative_inventory_size = 0
-
 function init()
  local inv = minetest.create_detached_inventory("creative", {
 		allow_move = function(inv, from_list, from_index, to_list, to_index, count, player)
-			if minetest.setting_getbool("creative_mode") then
+			if crafting.creative_mode(player) then
 				return count
 			else
 				return 0
@@ -28,7 +25,7 @@ function init()
 			return 0
 		end,
 		allow_take = function(inv, listname, index, stack, player)
-			if minetest.setting_getbool("creative_mode") then
+			if crafting.creative_mode(player) then
 				return -1
 			else
 				return 0
@@ -113,7 +110,7 @@ end
 -- Create the trash field
 local trash = minetest.create_detached_inventory("creative_trash", {
 	allow_put = function(inv, listname, index, stack, player)
-		if minetest.setting_getbool("creative_mode") then
+		if crafting.creative_mode(player) then
 			return stack:get_count()
 		else
 			return 0
@@ -226,7 +223,7 @@ end
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
 	local page = nil
-	if not minetest.setting_getbool("creative_mode") then
+	if not crafting.creative_mode(player) then
 		return
 	end
 	
@@ -317,7 +314,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 end)
 
 
-if minetest.setting_getbool("creative_mode") then
+if true then
 	minetest.register_item(":", {
 		type = "none",
 		wield_image = "wieldhand.png",
