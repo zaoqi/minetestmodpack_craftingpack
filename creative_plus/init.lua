@@ -1,4 +1,4 @@
---Copyright (c) 2016 zaoqi  
+--Copyright (c) 2017 zaoqi  
 
 --This program is free software: you can redistribute it and/or modify
 --it under the terms of the GNU Affero General Public License as published
@@ -21,3 +21,7 @@ end
 minetest.register_on_player_receive_fields(function(player, formname, fields)
 
 end)
+
+function creative.is_enabled_for(name)
+	return crafting.creative_mode_list[name]
+end

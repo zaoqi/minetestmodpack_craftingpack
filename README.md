@@ -3,7 +3,7 @@
 License of Textures: CC-BY-NC-SA 4.0 https://creativecommons.org/licenses/by-nc-sa/4.0/
 License of source code: 
 ----------------
-	Copyright (c) 2016 zaoqi  
+	Copyright (c) 2017 zaoqi  
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published
