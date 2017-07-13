@@ -14,9 +14,8 @@
 --along with this program.  If not, see <http://www.gnu.org/licenses/>.
 creative = {}
 
-creative.set_creative_formspec = function()
-
-end
+creative.set_creative_formspec = function() end
+creative.update_creative_inventory = function() end
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
 
